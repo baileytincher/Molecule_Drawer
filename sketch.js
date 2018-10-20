@@ -11,18 +11,62 @@ function setup() {
   pixelDensity(12.0); // Can cause errors on certain displays
   background(255);
   //draw();
+  // var linearMolecule = {
+  //   coreCarbons: 5,
+  //   substituents: [
+  //     [],
+  //     [{ formula: "", bondCount: 1, chainLength: 1 }],
+  //     [],
+  //     [],
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 }, 
+  //       { formula: "OH", bondCount: 1, chainLength: 0 }]
+
+  //   ],
+  //   cyclic: false
+  // };
+  // var linearMolecule = {
+  //   coreCarbons: 4,
+  //   substituents: [
+  //     [{ formula: "OH", bondCount: 1, chainLength: 0 }],
+  //     [{ formula: "Br", bondCount: 1, chainLength: 0 }],
+  //     [{ formula: "Cl", bondCount: 1, chainLength: 0 }],
+  //     [{ formula: "F", bondCount: 1, chainLength: 0 }]
+
+  //   ],
+  //   cyclic: false
+  // };
+  // var linearMolecule = {
+  //   coreCarbons: 3,
+  //   substituents: [
+  //     [],
+  //     [],
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 }]
+
+  //   ],
+  //   cyclic: false
+  // };
+  // var linearMolecule = {
+  //   coreCarbons: 4,
+  //   substituents: [
+  //     [],
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 }],
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 }],
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 }]
+
+  //   ],
+  //   cyclic: false
+  // };
   var linearMolecule = {
-    coreCarbons: 4,
+    coreCarbons: 3,
     substituents: [
-      [{ formula: "OH", bondCount: 2, chainLength: 0 }],
-      [{ formula: "", bondCount: 1, chainLength: 4 }],
-      [{ formula: "OH", bondCount: 1, chainLength: 0 }],
-      [{ formula: "", bondCount: 1, chainLength: 2 }]
+      [],
+      [{ formula: "", bondCount: 2, chainLength: 7 }],
+      [{ formula: "", bondCount: 2, chainLength: 6 }]
 
     ],
     cyclic: false
   };
-  drawLinearMolecule(linearMolecule);
+  //drawLinearMolecule(linearMolecule);
 
   var cyclicMolecule = {
     coreCarbons: 10,
@@ -35,7 +79,7 @@ function setup() {
     ],
     cyclic: true
   };
-  //drawCyclicMolecule(cyclicMolecule);
+  drawCyclicMolecule(cyclicMolecule);
 
 }
 
@@ -83,7 +127,7 @@ function drawText(text_, lineAngle, lineLength, x0, y0, textSize_ = 25) {
 
   // If perpendicular to x axis
   } else if (Math.abs(delx) < .001) { // Can't use delx == 0 due to approx vals
-    delx -= text_.length/2 * textSize_;
+    delx -= text_.length/3 * textSize_;
 
   }
 
@@ -153,16 +197,19 @@ function drawLinearMolecule(molecule, x0 = 200, y0 = 200) {
         drawLinearChain(substituent[j].chainLength, sub_ang, LINE_LENGTH, startPt.x, startPt.y);
 
       } else if (i == 0) { // @TODO: Fix this mess of conditions
+        if (substituent[j].formula == "OH") { // @ TODO: Generalize this by angle
+          substituent[j].formula = "HO";
+        }
         drawText(substituent[j].formula, sub_ang - Math.PI, LINE_LENGTH, startPt.x, startPt.y);
         if (substituent[j].bondCount > 1) {
-          subStartPt = drawDoubleBond(ang, LINE_LENGTH, startPt.x, startPt.y);
+          subStartPt = drawDoubleBond(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
 
         }
 
       } else {
         var subStartPt;
         if (substituent[j].bondCount > 1) {
-          subStartPt = drawDoubleBond(ang, LINE_LENGTH, startPt.x, startPt.y);
+          subStartPt = drawDoubleBond(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
 
         } else {
           subStartPt = drawLine(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
