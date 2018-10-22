@@ -18,8 +18,9 @@ function setup() {
   //     [{ formula: "", bondCount: 1, chainLength: 1 }],
   //     [],
   //     [],
-  //     [{ formula: "O", bondCount: 2, chainLength: 0 }, 
-  //       { formula: "OH", bondCount: 1, chainLength: 0 }]
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 },
+  //       { formula: "OH", bondCount: 1, chainLength: 0 }
+  //     ]
 
   //   ],
   //   cyclic: false
@@ -45,31 +46,31 @@ function setup() {
   //   ],
   //   cyclic: false
   // };
-  // var linearMolecule = {
-  //   coreCarbons: 4,
-  //   substituents: [
-  //     [],
-  //     [{ formula: "O", bondCount: 2, chainLength: 0 }],
-  //     [{ formula: "O", bondCount: 2, chainLength: 0 }],
-  //     [{ formula: "O", bondCount: 2, chainLength: 0 }]
-
-  //   ],
-  //   cyclic: false
-  // };
   var linearMolecule = {
-    coreCarbons: 3,
+    coreCarbons: 4,
     substituents: [
-      [],
-      [{ formula: "", bondCount: 2, chainLength: 7 }],
-      [{ formula: "", bondCount: 2, chainLength: 6 }]
+      [{ formula: "OH", bondCount: 1, chainLength: 0 }, { formula: "OH", bondCount: 1, chainLength: 0 }],
+      [{ formula: "O", bondCount: 2, chainLength: 0 }],
+      [{ formula: "O", bondCount: 2, chainLength: 0 }],
+      [{ formula: "OH", bondCount: 1, chainLength: 0 }]
 
     ],
     cyclic: false
   };
-  //drawLinearMolecule(linearMolecule);
+  // var linearMolecule = {
+  //   coreCarbons: 3,
+  //   substituents: [
+  //     [],
+  //     [{ formula: "", bondCount: 2, chainLength: 7 }],
+  //     [{ formula: "", bondCount: 2, chainLength: 6 }]
+
+  //   ],
+  //   cyclic: false
+  // };
+  drawLinearMolecule(linearMolecule);
 
   var cyclicMolecule = {
-    coreCarbons: 10,
+    coreCarbons: 3,
     substituents: [
 
       [{ formula: "", bondCount: 1 }],
@@ -79,7 +80,7 @@ function setup() {
     ],
     cyclic: true
   };
-  drawCyclicMolecule(cyclicMolecule);
+  //drawCyclicMolecule(cyclicMolecule);
 
 }
 
@@ -110,7 +111,7 @@ function drawText(text_, lineAngle, lineLength, x0, y0, textSize_ = 25) {
   strokeWeight(0);
 
   // Calculations to offset text from line
-  var offset = lineLength / 15;
+  var offset = lineLength / 20;
   var delx = Math.cos(lineAngle) * offset;
   var dely = Math.sin(lineAngle) * offset;
 
@@ -118,17 +119,21 @@ function drawText(text_, lineAngle, lineLength, x0, y0, textSize_ = 25) {
   if (dely > 0) {
     dely += textSize_ * 3 / 4;
   } else if (dely < 0) {
-    dely -= textSize_ * 3 / 4;
+    dely -= textSize_ * 1/4;
   }
 
   // Text is left justified instead of center
   if (delx < 0) {
     delx -= text_.length * textSize_ * 3 / 4;
 
-  // If perpendicular to x axis
-  } else if (Math.abs(delx) < .001) { // Can't use delx == 0 due to approx vals
-    delx -= text_.length/3 * textSize_;
+    // If perpendicular to x axis
+  } else if (Math.abs(delx) < .001 && text_ != "OH") { // Can't use delx == 0 due to approx vals
+    delx -= text_.length / 3 * textSize_;
 
+  }
+
+  if (Math.cos(lineAngle) < 0 && text_ == "OH") {
+    text_ = "HO"
   }
 
   text(text_, x0 + delx, y0 + dely);
@@ -139,12 +144,14 @@ function drawDoubleBond(angle, length, x0, y0, strokeWeight_ = 2) {
   // Sines and cosines necessary to stagger second line properly
   var delx = Math.sin(angle) * 6;
   var dely = -Math.cos(angle) * 6;
+  var newEndPt = drawLine(angle, length, x0, y0, strokeWeight_);
 
   // Offset line to be the double bond
-  drawLine(angle, length * 9 / 10, x0 + delx, y0 + dely, strokeWeight_);
+  //drawLine(angle, length * 9 / 10, x0 + delx, y0 + dely, strokeWeight_);
+  line(x0 + delx, y0 + dely, newEndPt.x + delx, newEndPt.y + dely);
 
   // Draws standard line down center and returns its end points
-  return drawLine(angle, length, x0, y0, strokeWeight_);
+  return newEndPt;
 
 }
 
@@ -182,41 +189,40 @@ function drawLinearMolecule(molecule, x0 = 200, y0 = 200) {
   for (var i = 0; i < molecule.coreCarbons; i++) {
 
     var substituent = molecule.substituents[i];
+    var sub_ang = ANG_90; // Default to substituent going down
 
     for (var j = 0; j < substituent.length; j++) {
 
-      var sub_ang = ANG_90; // Default to substituent going down
-
-      if (i == molecule.coreCarbons - 1 || i == 0) { // Substituent on first/last core carbon
-        sub_ang = ang;
-      } else if (ang > 0) { // Substituent goes up
-        sub_ang = -sub_ang;
+      if (j == 0) {
+        if (i == molecule.coreCarbons - 1) { // Substituent on first/last core carbon
+          sub_ang = ang;
+        } else if (i == 0) {
+          sub_ang = ANG_90;
+        } else if (ang > 0) { // Substituent goes up
+          sub_ang = -sub_ang;
+        }
+      } else {
+        sub_ang += ANG_120;
+        if (sub_ang == ang) {
+          sub_ang += ANG_120
+        }
       }
+
 
       if (substituent[j].chainLength > 0) {
         drawLinearChain(substituent[j].chainLength, sub_ang, LINE_LENGTH, startPt.x, startPt.y);
 
-      } else if (i == 0) { // @TODO: Fix this mess of conditions
-        if (substituent[j].formula == "OH") { // @ TODO: Generalize this by angle
-          substituent[j].formula = "HO";
-        }
-        drawText(substituent[j].formula, sub_ang - Math.PI, LINE_LENGTH, startPt.x, startPt.y);
-        if (substituent[j].bondCount > 1) {
-          subStartPt = drawDoubleBond(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
-
-        }
-
       } else {
-        var subStartPt;
+        var subEndPt;
         if (substituent[j].bondCount > 1) {
-          subStartPt = drawDoubleBond(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
+          subEndPt = drawDoubleBond(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
 
         } else {
-          subStartPt = drawLine(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
+          subEndPt = drawLine(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
 
         }
 
-        drawText(substituent[j].formula, sub_ang, LINE_LENGTH, subStartPt.x, subStartPt.y);
+        drawText(substituent[j].formula, sub_ang, LINE_LENGTH, subEndPt.x, subEndPt.y);
 
       }
 
