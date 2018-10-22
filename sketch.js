@@ -6,9 +6,12 @@ var ANG_90 = Math.PI / 2;
 var ANG_60 = ANG_120 / 2;
 var ANG_30 = ANG_60 / 2;
 
+var _molecules = [];
+var linearMolecule
+
 function setup() {
   createCanvas(1000, 1000);
-  pixelDensity(12.0); // Can cause errors on certain displays
+  //pixelDensity(12.0); // Can cause errors on certain displays
   background(255);
   //draw();
   // var linearMolecule = {
@@ -46,46 +49,54 @@ function setup() {
   //   ],
   //   cyclic: false
   // };
-  var linearMolecule = {
-    coreCarbons: 4,
-    substituents: [
-      [{ formula: "OH", bondCount: 1, chainLength: 0 }, { formula: "OH", bondCount: 1, chainLength: 0 }],
-      [{ formula: "O", bondCount: 2, chainLength: 0 }],
-      [{ formula: "O", bondCount: 2, chainLength: 0 }],
-      [{ formula: "OH", bondCount: 1, chainLength: 0 }]
-
-    ],
-    cyclic: false
-  };
-  // var linearMolecule = {
-  //   coreCarbons: 3,
+  // linearMolecule = {
+  //   coreCarbons: 4,
   //   substituents: [
-  //     [],
-  //     [{ formula: "", bondCount: 2, chainLength: 7 }],
-  //     [{ formula: "", bondCount: 2, chainLength: 6 }]
+  //     [{ formula: "OH", bondCount: 1, chainLength: 0 }, { formula: "OH", bondCount: 1, chainLength: 0 }],
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 }],
+  //     [{ formula: "O", bondCount: 2, chainLength: 0 }],
+  //     [{ formula: "OH", bondCount: 1, chainLength: 0 }]
 
   //   ],
   //   cyclic: false
   // };
-  drawLinearMolecule(linearMolecule);
-
-  var cyclicMolecule = {
+  var linearMolecule = {
     coreCarbons: 3,
     substituents: [
-
-      [{ formula: "", bondCount: 1 }],
       [],
-      [{ formula: "OH", bondCount: 1 }]
+      [{ formula: "", bondCount: 2, chainLength: 7 }],
+      [{ formula: "", bondCount: 2, chainLength: 6 }]
 
     ],
-    cyclic: true
+    cyclic: false
   };
+  loadMolecules('Output.json');
+  drawLinearMolecule(_molecules[0]);
+
+  // var cyclicMolecule = {
+  //   coreCarbons: 3,
+  //   substituents: [
+
+  //     [{ formula: "", bondCount: 1 }],
+  //     [],
+  //     [{ formula: "OH", bondCount: 1 }]
+
+  //   ],
+  //   cyclic: true
+  // };
+  console.log(linearMolecule);
   //drawCyclicMolecule(cyclicMolecule);
 
 }
 
+function loadMolecules(file) {
+  var molecules = JSON.parse('{"substituents":[[null,null,null,null],[{"bondCount":1,"chainLength":0,"formula":"OH"},null,null,null],[{"bondCount":2,"chainLength":0,"formula":"O"},null,null,null]],"cyclic":false,"coreCarbons":3}');
+  _molecules.push(molecules);
+}
+
 // Returns end points of line drawn
 function drawLine(angle, length, x0, y0, strokeWeight_ = 2) {
+  console.log("hi");
   smooth();
   strokeWeight(strokeWeight_);
 
@@ -119,7 +130,7 @@ function drawText(text_, lineAngle, lineLength, x0, y0, textSize_ = 25) {
   if (dely > 0) {
     dely += textSize_ * 3 / 4;
   } else if (dely < 0) {
-    dely -= textSize_ * 1/4;
+    dely -= textSize_ * 1 / 4;
   }
 
   // Text is left justified instead of center
@@ -193,44 +204,49 @@ function drawLinearMolecule(molecule, x0 = 200, y0 = 200) {
 
     for (var j = 0; j < substituent.length; j++) {
 
-      if (j == 0) {
-        if (i == molecule.coreCarbons - 1) { // Substituent on first/last core carbon
-          sub_ang = ang;
-        } else if (i == 0) {
-          sub_ang = ANG_90;
-        } else if (ang > 0) { // Substituent goes up
-          sub_ang = -sub_ang;
+      if (substituent[j] != null) {
+        console.log(j);
+        if (j == 0) {
+          if (i == molecule.coreCarbons - 1) { // Substituent on first/last core carbon
+            sub_ang = ang;
+          } else if (i == 0) {
+            sub_ang = ANG_90;
+          } else if (ang > 0) { // Substituent goes up
+            sub_ang = -sub_ang;
+          }
+        } else {
+          sub_ang += ANG_120;
+          if (sub_ang == ang) {
+            sub_ang += ANG_120
+          }
         }
-      } else {
-        sub_ang += ANG_120;
-        if (sub_ang == ang) {
-          sub_ang += ANG_120
-        }
-      }
 
 
-      if (substituent[j].chainLength > 0) {
-        drawLinearChain(substituent[j].chainLength, sub_ang, LINE_LENGTH, startPt.x, startPt.y);
-
-      } else {
-        var subEndPt;
-        if (substituent[j].bondCount > 1) {
-          subEndPt = drawDoubleBond(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
+        if (substituent[j].chainLength > 0) {
+          drawLinearChain(substituent[j].chainLength, sub_ang, LINE_LENGTH, startPt.x, startPt.y);
 
         } else {
-          subEndPt = drawLine(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
+          var subEndPt;
+          if (substituent[j].bondCount > 1) {
+            subEndPt = drawDoubleBond(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
+
+          } else {
+            subEndPt = drawLine(sub_ang, LINE_LENGTH, startPt.x, startPt.y);
+
+          }
+
+          drawText(substituent[j].formula, sub_ang, LINE_LENGTH, subEndPt.x, subEndPt.y);
 
         }
 
-        drawText(substituent[j].formula, sub_ang, LINE_LENGTH, subEndPt.x, subEndPt.y);
 
+
+        if (i != molecule.coreCarbons - 1) {
+          startPt = drawLine(ang, LINE_LENGTH, startPt.x, startPt.y);
+          ang = -ang;
+        }
       }
 
-    }
-
-    if (i != molecule.coreCarbons - 1) {
-      startPt = drawLine(ang, LINE_LENGTH, startPt.x, startPt.y);
-      ang = -ang;
     }
 
   }
