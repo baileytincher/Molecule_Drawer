@@ -84,19 +84,21 @@ function setup() {
   //   ],
   //   cyclic: true
   // };
-  console.log(linearMolecule);
+  //console.log(linearMolecule);
   //drawCyclicMolecule(cyclicMolecule);
 
 }
 
 function loadMolecules(file) {
-  var molecules = JSON.parse('{"substituents":[[null,null,null,null],[{"bondCount":1,"chainLength":0,"formula":"OH"},null,null,null],[{"bondCount":2,"chainLength":0,"formula":"O"},null,null,null]],"cyclic":false,"coreCarbons":3}');
-  _molecules.push(molecules);
+  var request = new XMLHttpRequest();
+  request.overrideMimeType("application/json");
+  request.open("GET", "Output.json", false);
+  request.send(null)
+  _molecules = JSON.parse(request.responseText);
 }
 
 // Returns end points of line drawn
 function drawLine(angle, length, x0, y0, strokeWeight_ = 2) {
-  console.log("hi");
   smooth();
   strokeWeight(strokeWeight_);
 
@@ -197,6 +199,7 @@ function drawLinearMolecule(molecule, x0 = 200, y0 = 200) {
   var ang = -ANG_30;
   var startPt = { x: x0, y: y0 };
 
+
   for (var i = 0; i < molecule.coreCarbons; i++) {
 
     var substituent = molecule.substituents[i];
@@ -205,7 +208,6 @@ function drawLinearMolecule(molecule, x0 = 200, y0 = 200) {
     for (var j = 0; j < substituent.length; j++) {
 
       if (substituent[j] != null) {
-        console.log(j);
         if (j == 0) {
           if (i == molecule.coreCarbons - 1) { // Substituent on first/last core carbon
             sub_ang = ang;
@@ -239,14 +241,12 @@ function drawLinearMolecule(molecule, x0 = 200, y0 = 200) {
 
         }
 
-
-
-        if (i != molecule.coreCarbons - 1) {
-          startPt = drawLine(ang, LINE_LENGTH, startPt.x, startPt.y);
-          ang = -ang;
-        }
       }
 
+    }
+    if (i != molecule.coreCarbons - 1) {
+      startPt = drawLine(ang, LINE_LENGTH, startPt.x, startPt.y);
+      ang = -ang;
     }
 
   }
