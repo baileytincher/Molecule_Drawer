@@ -1,20 +1,20 @@
-[{
+[
+{
   "substituents": [
-  [{
-    "bondCount": 0,
-    "chainLength": 0,
-    "formula": ""
-  }],
-  [{
-    "bondCount": 1,
-    "chainLength": 0,
-    "formula": "OH"
-  }],
-  [{
-    "bondCount": 2,
-    "chainLength": 0,
-    "formula": "O"
-  }]],
+    [null, null, null, null],
+    [
+    {
+      "bondCount": 1,
+      "chainLength": 0,
+      "formula": "OH"
+    }, null, null, null],
+    [
+    {
+      "bondCount": 2,
+      "chainLength": 0,
+      "formula": "O"
+    }, null, null, null]
+  ],
   "cyclic": false,
   "coreCarbons": 3
 }]
